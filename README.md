@@ -9,6 +9,7 @@ OpenClaw skill for parametric 3D CAD via [build123d](https://github.com/gumyr/bu
 | `cad_generate.py` | Execute build123d script → export STEP/STL/SVG |
 | `cad_measure.py` | Execute build123d script → bounding box, volume, surface area, center of mass |
 | `cad_section.py` | Generate 2D cross-section SVG at a given plane + offset |
+| `cad_validate.py` | Interference detection, clearance analysis, swept-volume collision checks |
 | `cad_api.py` | Print build123d API cheatsheet (no build123d dependency needed) |
 
 ## Install

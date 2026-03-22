@@ -64,9 +64,65 @@ Output: `{ "success": true, "artifact_path": "...", "plane": "XY", "offset_mm": 
 
 Output: JSON with primitives, operations, selectors, export functions. Call this first if you need to learn what's available.
 
+### Validate — interference, clearance, swept-volume collision
+
+Check an assembly of multiple parts for interference, minimum clearance, and moving-part collisions.
+
+```bash
+{baseDir}/.venv/bin/python {baseDir}/scripts/cad_validate.py \
+  --script '...' \
+  --mode full \
+  --min-clearance 1.0
+```
+
+Modes: `static` (Boolean intersection between all pairs), `clearance` (bounding box gap), `sweep` (rotate moving parts through angular range, check collisions), `full` (all three, default).
+
+The script must define `parts = {"name": solid, ...}` dict. Optionally define `sweeps` list for moving parts:
+
+```python
+from build123d import *
+
+with BuildPart() as enclosure:
+    Box(100, 80, 50)
+    offset(amount=-3, openings=enclosure.faces().sort_by(Axis.Z)[-1:])
+
+with BuildPart() as pcb:
+    with Locations((0, 0, 5)):
+        Box(60, 40, 2)
+
+with BuildPart() as servo_arm:
+    with Locations((30, 0, 25)):
+        Box(5, 20, 3)
+
+parts = {
+    "enclosure": enclosure.part,
+    "pcb": pcb.part,
+    "servo_arm": servo_arm.part,
+}
+
+sweeps = [
+    {
+        "name": "servo_arm",
+        "axis_origin": (30, 0, 25),
+        "axis_direction": (0, 1, 0),
+        "angle_start": -45,
+        "angle_end": 45,
+        "angle_step": 5,
+    },
+]
+```
+
+Output: `{ "verdict": "PASS|WARN|FAIL", "static_interference": {...}, "clearance": {...}, "swept_volume": {...} }`
+
+- **PASS** — no interference, clearance OK
+- **WARN** — clearance below threshold but no hard collision
+- **FAIL** — parts intersect or moving parts collide during sweep
+
+Swept volumes are exported to `~/.openclaw/workspace/cad-output/swept_<name>.step` for visualization.
+
 ## Script Format
 
-All scripts must assign the final solid to `result` via a `BuildPart` context:
+All single-part scripts must assign the final solid to `result` via a `BuildPart` context:
 
 ```python
 from build123d import *
@@ -78,6 +134,8 @@ with BuildPart() as result:
         CounterBoreHole(radius=5, counter_bore_radius=8, counter_bore_depth=3, depth=40)
 ```
 
+For validation scripts, define `parts` dict (and optionally `sweeps` list) instead of `result`.
+
 All dimensions in millimeters. Exported files go to `~/.openclaw/workspace/cad-output/`.
 
 ## Workflow
@@ -85,9 +143,10 @@ All dimensions in millimeters. Exported files go to `~/.openclaw/workspace/cad-o
 1. If unsure about build123d API, run `cad_api.py` first for the cheatsheet.
 2. Write a parameterized script (no magic numbers).
 3. Run `cad_measure.py` to verify dimensions before exporting.
-4. Run `cad_generate.py` with the desired format (step for CAD, stl for 3D printing).
-5. For clearance checks, run `cad_section.py` at relevant planes.
-6. Report artifact paths — they're in `~/.openclaw/workspace/cad-output/`.
+4. **For multi-part assemblies: run `cad_validate.py --mode full` before exporting.** Fix any FAIL/WARN before proceeding.
+5. Run `cad_generate.py` with the desired format (step for CAD, stl for 3D printing).
+6. For clearance visualization, run `cad_section.py` at relevant planes.
+7. Report artifact paths and validation verdict.
 
 ## Design Rules
 
