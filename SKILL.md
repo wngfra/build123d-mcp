@@ -1,15 +1,8 @@
 ---
 name: build123d-cad
-description: >
-  Parametric 3D CAD via build123d. Generate STEP, STL, SVG from Python scripts.
-  Use when the user asks to design, model, create, or export 3D parts, enclosures,
-  mounts, brackets, or mechanical components.
+description: "Parametric 3D CAD via build123d. Generate STEP, STL, SVG from Python scripts. Use when the user asks to design, model, create, or export 3D parts, enclosures, mounts, brackets, or mechanical components."
 version: 1.0.0
-metadata:
-  openclaw:
-    requires:
-      bins: ["python3"]
-    emoji: "🔧"
+metadata: {"openclaw":{"requires":{"bins":["python3"]},"emoji":"🔧"}}
 ---
 
 # build123d CAD
