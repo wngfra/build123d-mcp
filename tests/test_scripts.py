@@ -12,6 +12,9 @@ import pytest
 
 SCRIPTS = Path(__file__).parent.parent / "scripts"
 PYTHON = Path(__file__).parent.parent / ".venv" / "bin" / "python"
+if not PYTHON.exists():
+    import sys
+    PYTHON = Path(sys.executable)
 
 
 def run_script(name: str, args: list[str]) -> dict:
