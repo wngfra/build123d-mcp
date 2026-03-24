@@ -185,6 +185,36 @@ def test_sandbox_blocks_disallowed_import():
     assert "Blocked" in out["error"]
 
 
+def test_sandbox_blocks_getattr_bypass():
+    """AST check should catch getattr used to access dangerous builtins."""
+    out = run_script("cad_generate.py", [
+        "--script", "x = getattr(__builtins__, 'eval')",
+        "--format", "step",
+    ])
+    assert not out["success"]
+    assert "Blocked" in out["error"]
+
+
+def test_sandbox_blocks_dunder_subclasses():
+    """AST check should block __subclasses__ attribute access."""
+    out = run_script("cad_generate.py", [
+        "--script", "x = ().__class__.__bases__[0].__subclasses__()",
+        "--format", "step",
+    ])
+    assert not out["success"]
+    assert "Blocked" in out["error"]
+
+
+def test_sandbox_blocks_vars():
+    """AST check should block vars() call."""
+    out = run_script("cad_generate.py", [
+        "--script", "v = vars()",
+        "--format", "step",
+    ])
+    assert not out["success"]
+    assert "Blocked" in out["error"]
+
+
 def test_sandbox_allows_math():
     out = run_script("cad_generate.py", [
         "--script", "import math\nfrom build123d import *\nwith BuildPart() as result:\n    Cylinder(math.sqrt(25), 10)",

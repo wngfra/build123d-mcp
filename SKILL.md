@@ -2,7 +2,7 @@
 name: build123d-cad
 description: "Parametric 3D CAD via build123d. Generate STEP, STL, SVG from Python scripts. Use when the user asks to design, model, create, or export 3D parts, enclosures, mounts, brackets, or mechanical components."
 version: 1.0.0
-metadata: {"openclaw":{"requires":{"bins":["python3"]},"emoji":"🔧"}}
+metadata: {"openclaw":{"requires":{"bins":["python3"]},"setup":"setup.sh","emoji":"🔧"}}
 ---
 
 # build123d CAD
@@ -10,6 +10,14 @@ metadata: {"openclaw":{"requires":{"bins":["python3"]},"emoji":"🔧"}}
 Parametric 3D CAD via [build123d](https://build123d.readthedocs.io). This skill provides Python scripts for generating and measuring 3D solids. Run them with the `exec` tool.
 
 ## Setup (first time only)
+
+Run the automated installer (works with `uv` or plain `python3`):
+
+```bash
+bash {baseDir}/setup.sh
+```
+
+Or manually:
 
 ```bash
 cd {baseDir}
